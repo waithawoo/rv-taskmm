@@ -1,0 +1,67 @@
+networks:
+  wtotaskmm-network:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: wtotaskmm_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - wtotaskmm-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: wtotaskmm_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    restart: unless-stopped
+    networks:
+      - wtotaskmm-network
+
+  backend:
+    build: 
+      context: ./backend
+      args:
+        PORT: ${BACKEND_PORT}
+    container_name: wtotaskmm_backend
+    env_file:
+      - ./backend/src/.env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - wtotaskmm-network
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        PORT: ${FRONTEND_PORT}
+    container_name: wtotaskmm_frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      - backend
+    networks:
+      - wtotaskmm-network
+
+volumes:
+  mysql_data:
+  redis_data:

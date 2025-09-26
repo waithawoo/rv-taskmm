@@ -1,0 +1,57 @@
+logging:
+  version: 1
+  disable_existing_loggers: False
+  
+  formatters:
+    basic:
+      format: "%(asctime)s %(levelname)-8s %(name)-15s %(message)s"
+      datefmt: '%Y-%m-%d %H:%M:%S'
+      
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: NOTSET
+      formatter: basic
+      stream: ext://sys.stdout
+    file:
+      class: logging.handlers.RotatingFileHandler
+      level: NOTSET
+      formatter: basic
+      filename: wtotaskmm.log
+
+  root:
+    level: DEBUG
+    handlers: [console, file]
+    
+  loggers:
+    src:
+      level: DEBUG
+      propagate: True
+    passlib:
+      level: WARNING
+      propagate: False
+    watchfiles:
+      level: WARNING
+      propagate: False
+    sqlalchemy:
+      level: WARNING
+      propagate: False
+    boto3:
+      level: CRITICAL
+      propagate: False
+    botocore:
+      level: CRITICAL
+      propagate: False
+    s3transfer:
+      level: CRITICAL
+      propagate: False
+    urllib3:
+      level: CRITICAL
+      propagate: False
+    multipart:
+      level: CRITICAL
+      propagate: False
+    aiosqlite:
+      level: CRITICAL
+      propagate: False
+
